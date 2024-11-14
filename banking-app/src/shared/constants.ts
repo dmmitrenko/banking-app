@@ -1,1 +1,1 @@
-export const USER_REPOSITORY_TOKEN = Symbol('IUserRepository');
+export const WRONG_PASSWORD_ERROR = 'Incorrect login or password'
