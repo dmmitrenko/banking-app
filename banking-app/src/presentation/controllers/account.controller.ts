@@ -5,16 +5,13 @@ import { AccountService } from 'src/application/account/account.service';
 import { OpenAccountDto } from 'src/application/account/dto/open-account-dto';
 import { JwtAuthGuard } from 'src/application/auth/guards/auth.guard';
 import { RolesGuard } from 'src/application/auth/guards/role.guard';
-import { DepositService } from 'src/application/deposit/deposite.service';
-import { OpenDepositDto } from 'src/application/deposit/dto/open-deposit-dto';
-import { GetUser, Roles } from 'src/shared/decorators/roles.decorator';
+import { GetUser } from 'src/shared/decorators/roles.decorator';
 
-@Controller('user')
+@Controller('account')
 @UseGuards(JwtAuthGuard, RolesGuard)
-export class UserController {
+export class AccountController {
   constructor(
-    private readonly accountService: AccountService,
-    private readonly depositService: DepositService
+    private readonly accountService: AccountService
   ) {}
 
   @Post('/tranfer/:email')
@@ -51,7 +48,7 @@ export class UserController {
     };
   }
 
-  @Post('open-account')
+  @Post('open')
   async openAccount(
     @Body() dto: OpenAccountDto,
     @GetUser('email') email: string
@@ -63,7 +60,7 @@ export class UserController {
     };
   }
 
-  @Post('close-account')
+  @Post('close')
   async closeAccount(@GetUser('email') email: string) {
     const account = await this.accountService.getUserAccount(email);
     await this.accountService.closeAccount(account.id);
