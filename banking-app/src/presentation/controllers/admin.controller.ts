@@ -26,8 +26,4 @@ export class AdminController{
             message: 'user successfully blocked'
         }
     }
-
-    async getUserTransaction(){
-
-    }
 }

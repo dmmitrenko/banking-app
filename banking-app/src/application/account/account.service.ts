@@ -33,6 +33,17 @@ export class AccountService{
         return new Account(account)
     }
 
+    async getAccountBalance(account: Account, currency?: Currency){
+        if (!currency || account.currency === currency) {
+            return account.balance
+        }
+
+        const rates = await this.currencyRateApi.getCurrencyRates(account.currency, [currency])
+        const rate = rates.data[currency].value
+
+        return account.balance.mul(rate)
+    }
+
     async openAccount(email: string, currency: Currency){
         const user = await this.userReposity.findByEmail(email)
         await this.accountReposity.create({
@@ -111,8 +122,8 @@ export class AccountService{
             throw new BadRequestException(USER_IS_BLOCKED)
         }
 
-        const senderAccount = await this.accountReposity.findById(sender.id)
-        const receiverAccount = await this.accountReposity.findById(receiver.id)
+        const senderAccount = await this.accountReposity.getUserAccount(sender.id)
+        const receiverAccount = await this.accountReposity.getUserAccount(receiver.id)
 
         if (!senderAccount || !receiverAccount) {
             throw new BadRequestException(ACCOUNT_NOT_FOUND)
@@ -122,11 +133,12 @@ export class AccountService{
             throw new BadRequestException(ACCOUNT_IS_CLOSED)
         }
 
-        if (senderAccount.balance < amount) {
+        if (senderAccount.balance.lessThan(amount)) {
             throw new BadRequestException(SHORTAGE_OF_MONEY)
         }
 
-        const rate = 4
+        const rates = await this.currencyRateApi.getCurrencyRates(senderAccount.currency, [receiverAccount.currency])
+        const rate = rates.data[receiverAccount.currency].value
 
         return this.prisma.$transaction(async(tx) => {
             await this.accountReposity.update(senderAccount.id, {
@@ -134,7 +146,7 @@ export class AccountService{
             }, tx);
 
             await this.accountReposity.update(receiverAccount.id, {
-                balance: receiverAccount.balance.mul(rate)
+                balance: receiverAccount.balance.plus(amount.mul(rate))
             }, tx)
 
             await this.transactionReposity.create({
@@ -145,14 +157,5 @@ export class AccountService{
                 type: TransactionsType.TRANSFER
             }, tx)
         })
-    }
-
-    async getBalance(accountId: number) : Promise<Decimal> {
-        const account = await this.accountReposity.findById(accountId)
-        return account.balance
-    }
-
-    async getUserTransactions(userId: number){
-        
     }
 }
