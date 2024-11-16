@@ -23,7 +23,7 @@ export class UserController {
     private readonly depositService: DepositService
   ) {}
 
-  @Get()
+  @Get('all')
   @Roles(UserRole.ADMIN)
   async getAllDeposits() {
     return await this.depositService.getAllDeposits();
@@ -72,6 +72,12 @@ export class UserController {
   @Get(':email')
   @Roles(UserRole.ADMIN)
   async getUserDeposits(@Param('email') email: string) {
+    const account = await this.accountService.getUserAccount(email);
+    return await this.depositService.getUserDepositsHistory(account.id)
+  }
+
+  @Get()
+  async getDeposits(@GetUser('email') email: string) {
     const account = await this.accountService.getUserAccount(email);
     return await this.depositService.getUserDepositsHistory(account.id)
   }
