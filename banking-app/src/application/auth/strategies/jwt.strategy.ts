@@ -15,10 +15,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         })
     }
 
-    async validate(payload: Pick<User, 'email' | 'role'>){
-        const {email, role} = payload
-        const isAdmin = role === UserRole.ADMIN
+    async validate(payload: Pick<User, 'email' | 'role' | 'isBlocked'>){
+        const {email, role, isBlocked} = payload
         
-        return { email, role, isAdmin }
+        return { email, role, isBlocked}
     }
 }

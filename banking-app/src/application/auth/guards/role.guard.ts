@@ -12,14 +12,18 @@ export class RolesGuard implements CanActivate {
       context.getClass(),
     ]);
 
-    if (!requiredRoles) {
-      return true;
-    }
-
     const { user } = context.switchToHttp().getRequest();
 
     if (!user) {
       throw new ForbiddenException('User not authenticated');
+    }
+
+    if (user.isBlocked) {
+      throw new ForbiddenException('User banned');
+    }
+
+    if (!requiredRoles) {
+      return true;
     }
 
     if (!requiredRoles.includes(user.role)) {

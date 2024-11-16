@@ -16,7 +16,7 @@ export class User {
       password: string;
       createdAt?: Date;
       role: UserRole;
-      isBlocked?: boolean;
+      isBlocked: boolean;
     }) {
       this.id = user.id;
       this.name = user.name;

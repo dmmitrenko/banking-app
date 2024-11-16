@@ -29,11 +29,12 @@ export class AuthService {
       name: dto.name,
       password: hashedPassword,
       role: UserRole.USER,
-      email: dto.email
+      email: dto.email,
+      isBlocked: false
     });
   }
 
-  async validateUser(email: string, password: string): Promise<Pick<User, 'email' | 'role'>> {
+  async validateUser(email: string, password: string): Promise<Pick<User, 'email' | 'role' | 'isBlocked'>> {
     const user = await this.userReposity.findByEmail(email)
     if (!user) {
       throw new UnauthorizedException(WRONG_PASSWORD_ERROR)
@@ -46,12 +47,13 @@ export class AuthService {
 
     return {
       email: user.email,
-      role: user.role
+      role: user.role,
+      isBlocked: user.isBlocked
     }
   }
 
-  async login(email: string, role: UserRole) {
-    const payload = { email, role }
+  async login(email: string, role: UserRole, isBlocked: boolean) {
+    const payload = { email, role, isBlocked }
     return {
       access_token: await this.jwtService.signAsync(payload)
     }

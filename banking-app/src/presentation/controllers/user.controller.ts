@@ -4,12 +4,13 @@ import Decimal from "decimal.js"
 import { AccountService } from "src/application/account/account.service"
 import { OpenAccountDto } from "src/application/account/dto/open-account-dto"
 import { JwtAuthGuard } from "src/application/auth/guards/auth.guard"
+import { RolesGuard } from "src/application/auth/guards/role.guard"
 import { DepositService } from "src/application/deposit/deposite.service"
 import { OpenDepositDto } from "src/application/deposit/dto/open-deposit-dto"
-import { GetUser } from "src/shared/decorators/roles.decorator"
+import { GetUser, Roles } from "src/shared/decorators/roles.decorator"
 
 @Controller('user')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class UserController{
     constructor(
         private readonly accountService: AccountService,
@@ -31,7 +32,7 @@ export class UserController{
     }
 
     @Post('/deposit/:amount')
-  async openDeposit(
+    async openDeposit(
         @Param('amount') amount: string, 
         @GetUser('email') email: string,
     ) {

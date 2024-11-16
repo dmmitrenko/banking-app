@@ -24,8 +24,12 @@ export class AdminController{
     async createDepositOffer(@Body() dto: CreateDepositOfferDto){
     }
 
-    async blockUser(){
-
+    @Post('/:email')
+    async blockUser(@Param('email') email: string){
+        await this.adminService.blockUser(email)
+        return {
+            message: 'user successfully blocked'
+        }
     }
 
     async getUserTransaction(){
