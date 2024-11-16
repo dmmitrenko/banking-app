@@ -7,6 +7,7 @@ import { User } from 'src/domain/models/user.model';
 import { compare } from 'bcryptjs';
 import { WRONG_PASSWORD_ERROR } from 'src/shared/constants';
 import { JwtService } from '@nestjs/jwt';
+import { UserRole } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -27,12 +28,12 @@ export class AuthService {
     await this.userReposity.create({
       name: dto.name,
       password: hashedPassword,
-      roleId: 1,
+      role: UserRole.USER,
       email: dto.email
     });
   }
 
-  async validateUser(email: string, password: string): Promise<Pick<User, 'email' | 'roleId'>> {
+  async validateUser(email: string, password: string): Promise<Pick<User, 'email' | 'role'>> {
     const user = await this.userReposity.findByEmail(email)
     if (!user) {
       throw new UnauthorizedException(WRONG_PASSWORD_ERROR)
@@ -45,12 +46,12 @@ export class AuthService {
 
     return {
       email: user.email,
-      roleId: user.roleId
+      role: user.role
     }
   }
 
-  async login(email: string, roleId: number) {
-    const payload = { email, roleId }
+  async login(email: string, role: UserRole) {
+    const payload = { email, role }
     return {
       access_token: await this.jwtService.signAsync(payload)
     }

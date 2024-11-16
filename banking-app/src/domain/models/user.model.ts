@@ -1,10 +1,12 @@
+import { UserRole } from "@prisma/client";
+
 export class User {
     public id: number;
     public name: string;
     public email: string;
     public password: string;
     public createdAt: Date;
-    public roleId: number;
+    public role: UserRole;
     public isBlocked: boolean;
   
     constructor(user: {
@@ -13,7 +15,7 @@ export class User {
       email: string;
       password: string;
       createdAt?: Date;
-      roleId: number;
+      role: UserRole;
       isBlocked?: boolean;
     }) {
       this.id = user.id;
@@ -21,16 +23,7 @@ export class User {
       this.email = user.email;
       this.password = user.password;
       this.createdAt = user.createdAt;
-      this.roleId = user.roleId;
+      this.role = user.role;
       this.isBlocked = user.isBlocked;
     }
-
-    private mapRoleIdToEnum(roleId: number): Role {
-        return Role[roleId as unknown as keyof typeof Role];
-      }
-}
-
-export enum Role {
-  User,
-  Admin
 }

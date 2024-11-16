@@ -1,8 +1,8 @@
 import { createParamDecorator, ExecutionContext, SetMetadata } from '@nestjs/common';
-import { Role } from 'src/domain/models/user.model';
+import { UserRole } from '@prisma/client';
 
 export const ROLES_KEY = 'roles'
-export const Roles = (...roles: Role[]) => SetMetadata(ROLES_KEY, roles);
+export const Roles = (...roles: UserRole[]) => SetMetadata(ROLES_KEY, roles);
 
 export const GetUser = createParamDecorator(
     (data: string, ctx: ExecutionContext) => {

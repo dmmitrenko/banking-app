@@ -1,12 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 async function main() {
-  await prisma.role.createMany({
-    data: [
-        {title: 'Admin'},
-        {title: 'User'}
-    ]
-  })
+
 }
 main()
   .then(async () => {

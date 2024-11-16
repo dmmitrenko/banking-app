@@ -24,15 +24,6 @@ import { AccountModule } from './application/account/account.module';
     AdminController,
     UserController
   ],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: JwtAuthGuard
-    },
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard
-    }
-],
+  providers: [],
 })
 export class AppModule {}

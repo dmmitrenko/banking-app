@@ -1,8 +1,9 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
+import { UserRole } from "@prisma/client";
 import { ExtractJwt, Strategy } from "passport-jwt";
-import { Role, User } from "src/domain/models/user.model";
+import { User } from "src/domain/models/user.model";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -14,10 +15,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         })
     }
 
-    async validate(payload: Pick<User, 'email' | 'roleId'>){
-        const {email, roleId} = payload
-        const isAdmin = roleId === Role.Admin
+    async validate(payload: Pick<User, 'email' | 'role'>){
+        const {email, role} = payload
+        const isAdmin = role === UserRole.ADMIN
         
-        return { email, roleId, isAdmin }
+        return { email, role, isAdmin }
     }
 }
