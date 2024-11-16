@@ -27,7 +27,7 @@ export class DepositService{
         private readonly prisma: PrismaService
     ) {}
 
-    async getPosibleDepositAmount(account: Account, amount: Decimal, title: string) : Promise<Decimal>{
+    async getPosibleDepositAmount(amount: Decimal, title: string) : Promise<Decimal>{
         const deposit = await this.depositReposity.findByTitle(title)
         
         // compound interest

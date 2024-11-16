@@ -54,13 +54,10 @@ export class DepositController {
   @UsePipes(new ValidationPipe())
   async getPossibleDepositAmount(
     @Param('depositTitle') title: string,
-    @Param('amount') amount: string,
-    @GetUser('email') email: string
+    @Param('amount') amount: string
   ) {
     const decimalAmount = new Decimal(amount);
-    const account = await this.accountService.getUserAccount(email);
     return await this.depositService.getPosibleDepositAmount(
-      account,
       decimalAmount,
       title
     );
