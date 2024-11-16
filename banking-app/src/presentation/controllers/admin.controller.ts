@@ -23,4 +23,16 @@ export class AdminController{
     @UsePipes(new ValidationPipe())
     async createDepositOffer(@Body() dto: CreateDepositOfferDto){
     }
+
+    async blockUser(){
+
+    }
+
+    async getUserTransaction(){
+
+    }
+
+    async changeDepositIneterst(){
+
+    }
 }

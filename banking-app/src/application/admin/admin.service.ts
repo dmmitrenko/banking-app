@@ -30,10 +30,4 @@ export class AdminService{
 
         this.userRepository.blockUser(user)
     }
-
-    async getUserTransactions(userId: number){
-        
-    }
-
-    
 }

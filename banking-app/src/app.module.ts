@@ -10,6 +10,7 @@ import { AdminController } from './presentation/controllers/admin.controller';
 import { UserController } from './presentation/controllers/user.controller';
 import { AdminModule } from './application/admin/admin.module';
 import { AccountModule } from './application/account/account.module';
+import { DepositModule } from './application/deposit/deposit.module';
 
 @Module({
   imports: [
@@ -17,7 +18,8 @@ import { AccountModule } from './application/account/account.module';
     AdminModule,
     AccountModule,
     InfrastructureModule, 
-    DomainModule, 
+    DomainModule,
+    DepositModule
   ],
   controllers: [
     AuthController,

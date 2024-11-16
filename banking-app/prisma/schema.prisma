@@ -21,7 +21,7 @@ model User {
   createdAt DateTime @default(now())
   isBlocked Boolean  @default(false)
   role      UserRole @default(USER)
-  account   Account?
+  accounts   Account[]
 }
 
 model Account {

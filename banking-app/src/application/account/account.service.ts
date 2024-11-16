@@ -1,6 +1,7 @@
 import { BadRequestException, Inject } from "@nestjs/common";
-import { TransactionsType } from "@prisma/client";
+import { Currency, TransactionsType } from "@prisma/client";
 import Decimal from "decimal.js";
+import { Account } from "src/domain/models/account.model";
 import { IAccountRepository } from "src/domain/repositories/account.repository.interface";
 import { ITransactionRepository } from "src/domain/repositories/transaction.repository.interface";
 import { IUserRepository } from "src/domain/repositories/user.repository.interface";
@@ -21,9 +22,24 @@ export class AccountService{
         private readonly prisma: PrismaService
     ){ }
 
-    async openAccount(accountId: number){
-        await this.accountReposity.update(accountId, {
-            isActive: true
+    async getUserAccountId(userEmail: string) : Promise<Account>{
+        const user = await this.userReposity.findByEmail(userEmail)
+        const account = await this.accountReposity.getUserAccount(user.id)
+
+        if (!account) {
+            throw new BadRequestException(ACCOUNT_NOT_FOUND)
+        }
+
+        return new Account(account)
+    }
+
+    async openAccount(email: string, currency: Currency){
+        const user = await this.userReposity.findByEmail(email)
+        await this.accountReposity.create({
+            balance: new Decimal(0),
+            currency: currency,
+            isActive: true,
+            userId: user.id
         })
     }
 
@@ -134,5 +150,9 @@ export class AccountService{
     async getBalance(accountId: number) : Promise<Decimal> {
         const account = await this.accountReposity.findById(accountId)
         return account.balance
+    }
+
+    async getUserTransactions(userId: number){
+        
     }
 }
