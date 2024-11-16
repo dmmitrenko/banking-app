@@ -7,6 +7,8 @@ import { AccountRepository } from 'src/infrastructure/repositories/account.repos
 import { PrismaModule } from 'src/shared/prisma/prisma.module';
 import { CurrencyApiClient } from 'src/infrastructure/api_client/currency-api-client';
 import { InfrastructureModule } from 'src/infrastructure/infrastructure.module';
+import { ITransactionRepository } from 'src/domain/repositories/transaction.repository.interface';
+import { TransactionRepository } from 'src/infrastructure/repositories/transaction.repository';
 
 @Module({
     imports: [PrismaModule, InfrastructureModule],
@@ -19,6 +21,10 @@ import { InfrastructureModule } from 'src/infrastructure/infrastructure.module';
         {
             provide: IAccountRepository,
             useClass: AccountRepository
+        },
+        {
+            provide: ITransactionRepository,
+            useClass: TransactionRepository
         },
         CurrencyApiClient
     ],

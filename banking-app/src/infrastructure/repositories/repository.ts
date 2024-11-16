@@ -1,34 +1,40 @@
+import { Prisma } from "@prisma/client";
 import { IRepository } from "src/domain/repositories/repository.interface";
 import { PrismaService } from "src/shared/prisma/prisma.service";
 
-export abstract class Repository<T, ID> implements IRepository<T, ID>{
-    protected readonly prisma: PrismaService
-    protected readonly abstract model: any;
-
+export abstract class Repository<T, ID> implements IRepository<T, ID> {
+    protected readonly prisma: PrismaService;
+    protected abstract readonly modelName: string;
+  
     constructor(prisma: PrismaService) {
-        this.prisma = prisma;
+      this.prisma = prisma;
     }
-
-    create(data: Partial<T>): Promise<T> {
-        return this.model.create({ data });
+  
+    protected getModel(tx?: Prisma.TransactionClient) {
+      const prismaClient = tx ?? this.prisma;
+      return prismaClient[this.modelName];
     }
-
-    findAll(): Promise<T[]> {
-        return this.model.findMany();
+  
+    create(data: Partial<T>, tx?: Prisma.TransactionClient): Promise<T> {
+      return this.getModel(tx).create({ data });
     }
-
-    findById(id: ID): Promise<T> {
-        return this.model.findUnique({ where: { id } });
+  
+    findAll(tx?: Prisma.TransactionClient): Promise<T[]> {
+      return this.getModel(tx).findMany();
     }
-
-    update(id: ID, data: Partial<T>): Promise<T> {
-        return this.model.update({
-            where: { id },
-            data,
-          });
+  
+    findById(id: ID, tx?: Prisma.TransactionClient): Promise<T> {
+      return this.getModel(tx).findUnique({ where: { id } });
     }
-    
-    async delete(id: ID): Promise<void> {
-        await this.model.delete({ where: { id } });
+  
+    update(id: ID, data: Partial<T>, tx?: Prisma.TransactionClient): Promise<T> {
+      return this.getModel(tx).update({
+        where: { id },
+        data,
+      });
     }
-}
+  
+    async delete(id: ID, tx?: Prisma.TransactionClient): Promise<void> {
+      await this.getModel(tx).delete({ where: { id } });
+    }
+  }

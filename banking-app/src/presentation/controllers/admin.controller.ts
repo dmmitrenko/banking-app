@@ -1,6 +1,7 @@
-import { Controller, Get, Param, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Query, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
 import { UserRole } from "@prisma/client";
 import { AdminService } from "src/application/admin/admin.service";
+import { CreateDepositOfferDto } from "src/application/deposit/dto/create-deposit-offer.dto";
 import { JwtAuthGuard } from "src/application/auth/guards/auth.guard";
 import { RolesGuard } from "src/application/auth/guards/role.guard";
 import { User } from "src/domain/models/user.model";
@@ -16,5 +17,10 @@ export class AdminController{
     async getUserInformation(@Param('email') email: string) : Promise<User> {
         const user = await this.adminService.getUserInformation(email)
         return user
+    }
+
+    @Post('deposit')
+    @UsePipes(new ValidationPipe())
+    async createDepositOffer(@Body() dto: CreateDepositOfferDto){
     }
 }

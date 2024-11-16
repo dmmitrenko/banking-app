@@ -1,9 +1,12 @@
 import { BadRequestException, Inject } from "@nestjs/common";
+import { TransactionsType } from "@prisma/client";
 import Decimal from "decimal.js";
 import { IAccountRepository } from "src/domain/repositories/account.repository.interface";
+import { ITransactionRepository } from "src/domain/repositories/transaction.repository.interface";
 import { IUserRepository } from "src/domain/repositories/user.repository.interface";
 import { CurrencyApiClient } from "src/infrastructure/api_client/currency-api-client";
 import { ACCOUNT_IS_CLOSED, ACCOUNT_NOT_FOUND, SHORTAGE_OF_MONEY, USER_IS_BLOCKED, USER_NOT_FOUND } from "src/shared/constants";
+import { PrismaService } from "src/shared/prisma/prisma.service";
 
 export class AccountService{
 
@@ -12,23 +15,72 @@ export class AccountService{
         private readonly accountReposity: IAccountRepository,
         @Inject(IUserRepository) 
         private readonly userReposity: IUserRepository,
-        private readonly currencyRateApi: CurrencyApiClient
+        @Inject(ITransactionRepository) 
+        private readonly transactionReposity: ITransactionRepository,
+        private readonly currencyRateApi: CurrencyApiClient,
+        private readonly prisma: PrismaService
     ){ }
 
-    async openAccount(){
-
+    async openAccount(accountId: number){
+        await this.accountReposity.update(accountId, {
+            isActive: true
+        })
     }
 
-    async closeAccount(){
-
+    async closeAccount(accountId: number){
+        await this.accountReposity.update(accountId, {
+            isActive: false
+        })
     }
 
-    async depositMoney(){
+    async depositMoney(amount: Decimal, accountId: number){
+        const account = await this.accountReposity.findById(accountId)
+        const user = await this.userReposity.findById(account.userId)
 
+        if (!account.isActive || user.isBlocked) {
+            throw new BadRequestException(ACCOUNT_IS_CLOSED)
+        }
+
+        this.prisma.$transaction(async(tx) => {
+            await this.accountReposity.update(
+                accountId, 
+                {
+                balance: account.balance.add(amount)
+                },
+                tx
+            )
+
+            await this.transactionReposity.create({
+                accountId: accountId,
+                currency: account.currency,
+                amount: amount,
+                type: TransactionsType.DEPOSIT
+            }, tx)
+        })
     }
 
-    async withdrawMoney(){
+    async withdrawMoney(amount: Decimal, accountId: number){
+        const account = await this.accountReposity.findById(accountId)
+        if (!account.isActive) {
+            throw new BadRequestException(ACCOUNT_IS_CLOSED)
+        }
 
+        if (account.balance < amount) {
+            throw new BadRequestException(SHORTAGE_OF_MONEY)
+        }
+
+        return this.prisma.$transaction(async(tx) => {
+            await this.accountReposity.update(accountId, {
+                balance: account.balance.minus(amount)
+            }, tx)
+
+            await this.transactionReposity.create({
+                accountId: accountId,
+                currency: account.currency,
+                amount: amount,
+                type: TransactionsType.WITHDRAWAL
+            }, tx)
+        })
     }
 
     async transferMoney(senderEmail: string, receiverEmail: string, amount: Decimal){
@@ -58,15 +110,29 @@ export class AccountService{
             throw new BadRequestException(SHORTAGE_OF_MONEY)
         }
 
-        if (senderAccount.currency == receiverAccount.currency) {
-            return await this.accountReposity.transfer(senderAccount, receiverAccount, amount, amount)
-        }
-
         const rate = await this.currencyRateApi.getExchangeRate(senderAccount.currency, receiverAccount.currency)
-        return await this.accountReposity.transfer(senderAccount, receiverAccount, amount, amount.mul(rate))
+
+        return this.prisma.$transaction(async(tx) => {
+            await this.accountReposity.update(senderAccount.id, {
+                balance: senderAccount.balance.minus(amount)
+            }, tx);
+
+            await this.accountReposity.update(receiverAccount.id, {
+                balance: receiverAccount.balance.mul(rate)
+            }, tx)
+
+            await this.transactionReposity.create({
+                accountId: sender.id,
+                targetAccountId: receiver.id,
+                amount: amount,
+                currency: senderAccount.currency,
+                type: TransactionsType.TRANSFER
+            }, tx)
+        })
     }
 
-    async getBalance(){
-
+    async getBalance(accountId: number) : Promise<Decimal> {
+        const account = await this.accountReposity.findById(accountId)
+        return account.balance
     }
 }
