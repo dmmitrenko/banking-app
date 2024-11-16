@@ -81,7 +81,7 @@ export class AccountService{
             throw new BadRequestException(ACCOUNT_IS_CLOSED)
         }
 
-        if (account.balance < amount) {
+        if (account.balance.lessThan(amount)) {
             throw new BadRequestException(SHORTAGE_OF_MONEY)
         }
 

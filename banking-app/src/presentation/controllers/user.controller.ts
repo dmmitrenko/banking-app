@@ -30,10 +30,20 @@ export class UserController{
         }
     }
 
-    @Post('deposit')
-    async openDeposit(@Body() dto: OpenDepositDto){
-        await this.depositService.openDeposit(dto)
-    }
+    @Post('/deposit/:amount')
+  async openDeposit(
+        @Param('amount') amount: string, 
+        @GetUser('email') email: string,
+    ) {
+    const decimalAmount = new Decimal(amount);
+
+    const account = await this.accountService.getUserAccountId(email);
+    await this.accountService.depositMoney(decimalAmount, account.id);
+
+    return {
+      message: 'Successfully funded',
+    };
+  }
 
     @Post('open-account')
     async openAccount(@Body() dto: OpenAccountDto, @GetUser('email') email: string){

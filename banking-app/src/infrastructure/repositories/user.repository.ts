@@ -24,8 +24,8 @@ export class UserRepository
         data: { isBlocked: true }
       });
 
-      await prisma.account.update({
-        where: {userId: user.id},
+      await prisma.account.updateMany({
+        where: { userId: user.id },
         data: {isActive: false}
       })
     });

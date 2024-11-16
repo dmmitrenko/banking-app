@@ -30,7 +30,7 @@ model Account {
   currency  Currency
   isActive  Boolean
   createdAt DateTime @default(now())
-  userId    Int      @unique
+  userId    Int      
   deposits   AccountDeposit[]
   user      User     @relation(fields: [userId], references: [id])
 }
