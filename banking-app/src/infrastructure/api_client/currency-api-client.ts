@@ -1,44 +1,55 @@
-import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import axios from "axios";
-import Decimal from "decimal.js";
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class CurrencyApiClient {
+  private readonly apiKey: string;
+  private readonly baseUrl: string = 'https://api.currencyapi.com/v3/latest';
 
-    private readonly baseUrl: string;
-  
-    constructor() 
-    {
-      this.baseUrl = 'https://api.currencyapi.com';
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService
+  ) {
+    this.apiKey = this.configService.get<string>('CURRENCY_API_KEY');
+    if (!this.apiKey) {
+      throw new Error(
+        'CURRENCY_API_KEY is not defined in environment variables.'
+      );
     }
-     
-    /**
-     * Get currency rate for a specific pair.
-     * @param baseCurrency - Base currency (e.g. USD)
-     * @param targetCurrency - Target currency (e.g. EUR)
-     * @returns Promise with currency rate.
-     */
+  }
 
-    async getExchangeRate(baseCurrency: string, targetCurrency: string): Promise<Decimal> {
-      try {
-        const response = await axios.get(`${this.baseUrl}/latest`, {
-          params: {
-            apikey: 'APIKEY',
-            base_currency: baseCurrency,
-            currencies: targetCurrency,
-          },
-        });
-  
-        const rate = response.data.rates[targetCurrency];
-        if (!rate) {
-          throw new Error(`Failed to get a rate for ${baseCurrency} -> ${targetCurrency}`);
-        }
-  
-        return rate;
-      } catch (error) {
-        console.error(`Error when receiving exchange rate: ${error.message}`);
-        throw new Error('Error when working with currency API.');
+  async getCurrencyRates(
+    baseCurrency: string,
+    currencies: string[]
+  ): Promise<any> {
+    try {
+      const params = {
+        apikey: this.apiKey,
+        base_currency: baseCurrency,
+        currencies: currencies.join(',')
+      };
+
+      const response = await firstValueFrom(
+        this.httpService.get(this.baseUrl, { params })
+      );
+
+      return response.data;
+    } catch (error) {
+      if (error.response) {
+        throw new HttpException(error.response.data, error.response.status);
+      } else if (error.request) {
+        throw new HttpException(
+          'No response received from currency API',
+          HttpStatus.GATEWAY_TIMEOUT
+        );
+      } else {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR
+        );
       }
     }
   }
+}

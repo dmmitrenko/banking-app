@@ -8,6 +8,9 @@ import { OpenDepositDto } from "./dto/open-deposit-dto";
 import { ACCOUNT_IS_CLOSED, SHORTAGE_OF_MONEY } from "src/shared/constants";
 import Decimal from "decimal.js";
 import { Account } from "src/domain/models/account.model";
+import { CurrencyApiClient } from "src/infrastructure/api_client/currency-api-client";
+import { PrismaService } from "src/shared/prisma/prisma.service";
+import { ITransactionRepository } from "src/domain/repositories/transaction.repository.interface";
 
 export class DepositService{
 
@@ -17,26 +20,26 @@ export class DepositService{
         @Inject(IUserRepository)
         private readonly userRepository: IUserRepository,
         @Inject(IAccountRepository) 
-        private readonly accountReposity: IAccountRepository
+        private readonly accountReposity: IAccountRepository,
+        @Inject(ITransactionRepository) 
+        private readonly transactionReposity: ITransactionRepository,
+        private readonly currencyApiClient: CurrencyApiClient,
+        private readonly prisma: PrismaService
     ) {}
 
     async getPosibleDepositAmount(account: Account, amount: Decimal, title: string) : Promise<Decimal>{
         const deposit = await this.depositReposity.findByTitle(title)
         
-        const totalInterestRate = !account.personalInterest 
-            ? new Decimal(account.personalInterest).times(deposit.term)
-            : new Decimal(deposit.interest).times(deposit.term)
-
-        const possibleAmount = amount.plus(amount.times(totalInterestRate.dividedBy(100)))
+        // compound interest
+        const possibleAmount = amount.times(new Decimal(1).plus(new Decimal(deposit.interest / 100)).pow(deposit.term)) 
 
         return possibleAmount
     }
 
-    async openDeposit(dto: OpenDepositDto){
-        const account = await this.accountReposity.findById(dto.accountId)
-        const deposit = await this.depositReposity.findByTitle(dto.depositTitle)
+    async openDeposit(account: Account, amount: Decimal, depositTitle: string){
+        const deposit = await this.depositReposity.findByTitle(depositTitle)
 
-        if (account.balance < dto.startAmount) {
+        if (account.balance.lessThan(amount)) {
             throw new BadRequestException(SHORTAGE_OF_MONEY)
         }
 
@@ -44,7 +47,16 @@ export class DepositService{
             throw new BadRequestException(ACCOUNT_IS_CLOSED)
         }
 
-        //TODO: rate convertaion
+        const rates = await this.currencyApiClient.getCurrencyRates(account.currency, [deposit.currency])
+        const rate = rates.data[deposit.currency].value
+
+        await this.prisma.$transaction(async(tx) => {
+            await this.accountReposity.update(account.id, {
+                balance: account.balance.minus(amount)
+            }, tx)
+
+            await this.depositReposity.openDepositeForAccount(account, deposit, amount.mul(new Decimal(rate)), tx)
+        })
     }
 
     async closeDeposit(){
@@ -52,8 +64,7 @@ export class DepositService{
     }
 
     async getUserDepositsHistory(accountId: number){
-        const deposits = await this.depositReposity.getAccountDeposits(accountId)
-        return deposits.map((deposit) => new Deposit(deposit));
+        return await this.depositReposity.getAccountDeposits(accountId)
     }
 
     async createDeposit(dto: CreateDepositOfferDto){

@@ -53,8 +53,7 @@ model AccountDeposit {
   id         Int          @id @default(autoincrement())
   accountId     Int
   depositId  Int
-  startDate  DateTime
-  endDate    DateTime
+  startDate  DateTime @default(now())
   amount Decimal
   personalInterest Decimal?
 

@@ -19,11 +19,6 @@ export class AdminController{
         return user
     }
 
-    @Post('deposit')
-    @UsePipes(new ValidationPipe())
-    async createDepositOffer(@Body() dto: CreateDepositOfferDto){
-    }
-
     @Post('/:email')
     async blockUser(@Param('email') email: string){
         await this.adminService.blockUser(email)

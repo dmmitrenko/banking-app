@@ -25,8 +25,7 @@ import { TransactionRepository } from 'src/infrastructure/repositories/transacti
         {
             provide: ITransactionRepository,
             useClass: TransactionRepository
-        },
-        CurrencyApiClient
+        }
     ],
     exports: [AccountService]
 })

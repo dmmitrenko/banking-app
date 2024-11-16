@@ -11,6 +11,7 @@ import { UserController } from './presentation/controllers/user.controller';
 import { AdminModule } from './application/admin/admin.module';
 import { AccountModule } from './application/account/account.module';
 import { DepositModule } from './application/deposit/deposit.module';
+import { DepositController } from './presentation/controllers/deposit.controller';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { DepositModule } from './application/deposit/deposit.module';
   controllers: [
     AuthController,
     AdminController,
-    UserController
+    UserController,
+    DepositController
   ],
   providers: [],
 })

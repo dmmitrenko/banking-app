@@ -1,6 +1,5 @@
 import { Currency } from '@prisma/client';
 import { IsEnum, IsInt, IsNumber, IsString, Max, Min } from 'class-validator';
-import Decimal from 'decimal.js';
 
 export class CreateDepositOfferDto {
   @IsString()

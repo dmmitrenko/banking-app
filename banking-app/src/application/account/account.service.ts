@@ -126,7 +126,7 @@ export class AccountService{
             throw new BadRequestException(SHORTAGE_OF_MONEY)
         }
 
-        const rate = await this.currencyRateApi.getExchangeRate(senderAccount.currency, receiverAccount.currency)
+        const rate = 4
 
         return this.prisma.$transaction(async(tx) => {
             await this.accountReposity.update(senderAccount.id, {

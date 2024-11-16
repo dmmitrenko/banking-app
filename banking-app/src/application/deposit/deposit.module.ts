@@ -7,24 +7,31 @@ import { DepositRepository } from 'src/infrastructure/repositories/deposit.repos
 import { AccountRepository } from 'src/infrastructure/repositories/account.repository';
 import { UserRepository } from 'src/infrastructure/repositories/user.repository';
 import { PrismaModule } from 'src/shared/prisma/prisma.module';
+import { InfrastructureModule } from 'src/infrastructure/infrastructure.module';
+import { ITransactionRepository } from 'src/domain/repositories/transaction.repository.interface';
+import { TransactionRepository } from 'src/infrastructure/repositories/transaction.repository';
 
 @Module({
-    imports:[PrismaModule],
-    providers: [
-        DepositService,
-        {
-            provide: IUserRepository,
-            useClass: UserRepository
-        },
-        {
-            provide: IAccountRepository,
-            useClass: AccountRepository
-        },
-        {
-            provide: IDepositRepository,
-            useClass: DepositRepository
-        }
-    ],
-    exports:[DepositService]
+  imports: [PrismaModule, InfrastructureModule],
+  providers: [
+    DepositService,
+    {
+      provide: IUserRepository,
+      useClass: UserRepository
+    },
+    {
+      provide: IAccountRepository,
+      useClass: AccountRepository
+    },
+    {
+      provide: IDepositRepository,
+      useClass: DepositRepository
+    },
+    {
+        provide: ITransactionRepository,
+        useClass: TransactionRepository
+    }
+  ],
+  exports: [DepositService]
 })
 export class DepositModule {}
