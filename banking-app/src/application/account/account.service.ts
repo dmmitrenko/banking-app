@@ -22,7 +22,7 @@ export class AccountService{
         private readonly prisma: PrismaService
     ){ }
 
-    async getUserAccountId(userEmail: string) : Promise<Account>{
+    async getUserAccount(userEmail: string) : Promise<Account>{
         const user = await this.userReposity.findByEmail(userEmail)
         const account = await this.accountReposity.getUserAccount(user.id)
 

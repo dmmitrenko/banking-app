@@ -8,6 +8,7 @@ export class Account {
     readonly isActive: boolean;
     readonly createdAt: Date;
     readonly userId: number;
+    readonly personalInterest?: number;
 
   constructor(account: {
     id: number;
@@ -16,6 +17,7 @@ export class Account {
     isActive: boolean;
     createdAt: Date;
     userId: number;
+    personalInterest?: number;
   }) {
     this.id = account.id
     this.balance = account.balance
@@ -23,5 +25,6 @@ export class Account {
     this.isActive = account.isActive
     this.createdAt = account.createdAt
     this.userId = account.userId
+    this.personalInterest = this.personalInterest
   }
 }

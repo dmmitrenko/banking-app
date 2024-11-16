@@ -35,8 +35,4 @@ export class AdminController{
     async getUserTransaction(){
 
     }
-
-    async changeDepositIneterst(){
-
-    }
 }

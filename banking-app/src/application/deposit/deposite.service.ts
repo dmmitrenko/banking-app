@@ -6,6 +6,8 @@ import { IUserRepository } from "src/domain/repositories/user.repository.interfa
 import { IAccountRepository } from "src/domain/repositories/account.repository.interface";
 import { OpenDepositDto } from "./dto/open-deposit-dto";
 import { ACCOUNT_IS_CLOSED, SHORTAGE_OF_MONEY } from "src/shared/constants";
+import Decimal from "decimal.js";
+import { Account } from "src/domain/models/account.model";
 
 export class DepositService{
 
@@ -18,8 +20,16 @@ export class DepositService{
         private readonly accountReposity: IAccountRepository
     ) {}
 
-    async getPosibleDepositAmount(){
+    async getPosibleDepositAmount(account: Account, amount: Decimal, title: string) : Promise<Decimal>{
+        const deposit = await this.depositReposity.findByTitle(title)
+        
+        const totalInterestRate = !account.personalInterest 
+            ? new Decimal(account.personalInterest).times(deposit.term)
+            : new Decimal(deposit.interest).times(deposit.term)
 
+        const possibleAmount = amount.plus(amount.times(totalInterestRate.dividedBy(100)))
+
+        return possibleAmount
     }
 
     async openDeposit(dto: OpenDepositDto){
@@ -57,9 +67,17 @@ export class DepositService{
         )
     }
 
-    async changeDepositPercentage(depositId: number, newInterest: number){
-        await this.depositReposity.update(depositId, {
-            interest: newInterest
-        })
+    async changeDepositPercentage(accountDepositId: number, newInterest: number){
+        await this.depositReposity.updateInterest(accountDepositId, newInterest)
+    }
+
+    async getAllDeposits() : Promise<Deposit[]>{
+        const deposits = await this.depositReposity.findAll()
+        return deposits.map((deposit) => new Deposit(deposit))
+    }
+
+    async getActiveDeposits() : Promise<Deposit[]>{
+        const deposits = await this.depositReposity.findActive()
+        return deposits.map((deposit) => new Deposit(deposit))
     }
 }

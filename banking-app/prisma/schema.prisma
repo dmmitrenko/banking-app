@@ -56,6 +56,7 @@ model AccountDeposit {
   startDate  DateTime
   endDate    DateTime
   amount Decimal
+  personalInterest Decimal?
 
   account       Account         @relation(fields: [accountId], references: [id])
   deposit    Deposit      @relation(fields: [depositId], references: [id])

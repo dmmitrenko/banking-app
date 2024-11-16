@@ -31,14 +31,14 @@ export class UserController{
         }
     }
 
-    @Post('/deposit/:amount')
-    async openDeposit(
+    @Post('/deposit-money/:amount')
+    async depositMoney(
         @Param('amount') amount: string, 
         @GetUser('email') email: string,
     ) {
     const decimalAmount = new Decimal(amount);
 
-    const account = await this.accountService.getUserAccountId(email);
+    const account = await this.accountService.getUserAccount(email);
     await this.accountService.depositMoney(decimalAmount, account.id);
 
     return {
@@ -49,19 +49,27 @@ export class UserController{
     @Post('open-account')
     async openAccount(@Body() dto: OpenAccountDto, @GetUser('email') email: string){
         await this.accountService.openAccount(email, dto.currency)
+
+        return {
+            message: 'Account is opened'
+        }
     }
 
     @Post('close-account')
     async closeAccount(@GetUser('email') email: string){
-        const account = await this.accountService.getUserAccountId(email)
+        const account = await this.accountService.getUserAccount(email)
         await this.accountService.closeAccount(account.id)
+
+        return {
+            message: 'Account closed'
+        }
     }
 
     @Post('withdraw-money/:amount')
     async withdrawMoney(
         @GetUser('email') email: string,
         @Param('amount') amount: Decimal){
-        const account = await this.accountService.getUserAccountId(email)
+        const account = await this.accountService.getUserAccount(email)
         await this.accountService.withdrawMoney(amount, account.id)
     }
 
@@ -69,7 +77,7 @@ export class UserController{
     async getBalance(
         @GetUser('email') email: string,
         @Param('currency') currency: Currency) {
-        const account = await this.accountService.getUserAccountId(email)
+        const account = await this.accountService.getUserAccount(email)
         if (account.currency === currency) {
             return {
                 currency: currency,
@@ -80,11 +88,6 @@ export class UserController{
 
     @Get('transactions')
     async getTransactions(){
-
-    }
-
-    @Get('deposit')
-    async getPossibleAmountForDeposit(){
 
     }
 }
