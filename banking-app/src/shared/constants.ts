@@ -1,1 +1,6 @@
 export const WRONG_PASSWORD_ERROR = 'Incorrect login or password'
+export const USER_NOT_FOUND = 'User not found'
+export const SHORTAGE_OF_MONEY = 'You don\'t have enough money'
+export const ACCOUNT_NOT_FOUND = 'Account not found'
+export const USER_IS_BLOCKED = 'User is blocked'
+export const ACCOUNT_IS_CLOSED = 'Account is no longer active'

@@ -5,6 +5,7 @@ export class User {
     public password: string;
     public createdAt: Date;
     public roleId: number;
+    public isBlocked: boolean;
   
     constructor(user: {
       id?: number;
@@ -13,6 +14,7 @@ export class User {
       password: string;
       createdAt?: Date;
       roleId: number;
+      isBlocked?: boolean;
     }) {
       this.id = user.id;
       this.name = user.name;
@@ -20,6 +22,7 @@ export class User {
       this.password = user.password;
       this.createdAt = user.createdAt;
       this.roleId = user.roleId;
+      this.isBlocked = user.isBlocked;
     }
 
     private mapRoleIdToEnum(roleId: number): Role {

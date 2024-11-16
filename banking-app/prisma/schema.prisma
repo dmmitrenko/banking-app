@@ -20,6 +20,7 @@ model User {
   password  String
   createdAt DateTime @default(now())
   roleId    Int      @unique
+  isBlocked Boolean  @default(false)
   account   Account?
   role      Role     @relation(fields: [roleId], references: [id])
 }
@@ -57,14 +58,13 @@ model Transaction {
   accountId       Int
   currency        String
   amount          Decimal
-  date            DateTime
-  typeId          Int             @unique
+  date            DateTime        @default(now())
   targetAccountId Int?
-  type            TransactionType @relation(fields: [typeId], references: [id])
+  type            TransactionsType
 }
 
-model TransactionType {
-  id          Int          @id @default(autoincrement())
-  title       String
-  transaction Transaction?
+enum TransactionsType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER
 }

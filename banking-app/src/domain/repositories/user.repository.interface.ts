@@ -1,4 +1,5 @@
-import { User } from "../models/user.model";
+
+import { User } from "@prisma/client";
 import { IRepository } from "./repository.interface";
 
 export interface IUserRepository extends IRepository<User, number>{

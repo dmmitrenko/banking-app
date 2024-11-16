@@ -7,10 +7,10 @@ import {
   UsePipes,
   ValidationPipe
 } from '@nestjs/common';
-import { RegisterUserDto } from '../dto/register-user-dto';
+import { RegisterUserDto } from '../../application/auth/dto/register-user-dto';
 import { AuthService } from 'src/application/auth/auth.service';
 import { UserAlreadyExistsFilter } from '../filters/user-already-exists.filter';
-import { LoginUserDto } from '../dto/login-user-dto';
+import { LoginUserDto } from '../../application/auth/dto/login-user-dto';
 
 @Controller('auth')
 export class AuthController {

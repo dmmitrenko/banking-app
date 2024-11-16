@@ -9,7 +9,7 @@ export abstract class Repository<T, ID> implements IRepository<T, ID>{
         this.prisma = prisma;
     }
 
-    create(data: T): Promise<T> {
+    create(data: Partial<T>): Promise<T> {
         return this.model.create({ data });
     }
 

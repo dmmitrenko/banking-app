@@ -7,14 +7,6 @@ async function main() {
         {title: 'User'}
     ]
   })
-
-  await prisma.transactionType.createMany({
-    data: [
-        {title: 'deposit'},
-        {title: 'withdrawal'},
-        {title: 'transfer'}
-    ]
-  })
 }
 main()
   .then(async () => {
