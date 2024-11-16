@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -68,5 +67,12 @@ export class UserController {
       accountDepositId,
       interest
     );
+  }
+
+  @Get(':email')
+  @Roles(UserRole.ADMIN)
+  async getUserDeposits(@Param('email') email: string) {
+    const account = await this.accountService.getUserAccount(email);
+    return await this.depositService.getUserDepositsHistory(account.id)
   }
 }
