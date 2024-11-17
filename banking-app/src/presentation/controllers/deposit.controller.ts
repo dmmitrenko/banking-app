@@ -9,6 +9,7 @@ import {
   UsePipes,
   ValidationPipe
 } from '@nestjs/common';
+import { ApiOperation } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 import Decimal from 'decimal.js';
 import { AccountService } from 'src/application/account/account.service';
@@ -30,16 +31,19 @@ export class DepositController {
   @Get('all')
   @UsePipes(new ValidationPipe())
   @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'get all deposits'})
   async getAllDeposits() {
     return await this.depositService.getAllDeposits();
   }
 
   @Get('active')
+  @ApiOperation({ summary: 'receive all active deposits'})
   async getActiveDeposits() {
     return await this.depositService.getActiveDeposits();
   }
 
   @Post('open')
+  @ApiOperation({ summary: 'open a deposit for an account'})
   @UsePipes(new ValidationPipe())
   async openDeposit(@Body() dto: OpenDepositDto, @GetUser('email') email: string) {
     const decimalAmount = new Decimal(dto.startAmount);
@@ -51,6 +55,7 @@ export class DepositController {
   }
 
   @Get('possible-amount/:depositTitle/:amount')
+  @ApiOperation({ summary: 'receive the possible amount at the end of the deposit'})
   @UsePipes(new ValidationPipe())
   async getPossibleDepositAmount(
     @Param('depositTitle') title: string,
@@ -64,6 +69,7 @@ export class DepositController {
   }
 
   @Post('set-user-interest/:accountDepositId/:newInterest')
+  @ApiOperation({ summary: 'set a specific deposit percentage for a specific account'})
   @UsePipes(new ValidationPipe())
   @Roles(UserRole.ADMIN)
   async setPersonalDepositIneterst(
@@ -77,6 +83,7 @@ export class DepositController {
   }
 
   @Get(':email')
+  @ApiOperation({ summary: 'retrieve the user\'s deposit history'})
   @UsePipes(new ValidationPipe())
   @Roles(UserRole.ADMIN)
   async getUserDeposits(@Param('email') email: string) {
@@ -85,6 +92,7 @@ export class DepositController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'retrieve my deposit history'})
   @UsePipes(new ValidationPipe())
   async getDeposits(@GetUser('email') email: string) {
     const account = await this.accountService.getUserAccount(email);
@@ -92,6 +100,7 @@ export class DepositController {
   }
 
   @Post()
+  @ApiOperation({ summary: 'create a new deposit'})
   @UsePipes(new ValidationPipe())
   @Roles(UserRole.ADMIN)
   async createDepositOffer(@Body() dto: CreateDepositOfferDto){

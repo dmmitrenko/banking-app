@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { ApiOperation } from '@nestjs/swagger';
 import { Currency } from '@prisma/client';
 import Decimal from 'decimal.js';
 import { AccountService } from 'src/application/account/account.service';
@@ -15,6 +16,7 @@ export class AccountController {
   ) {}
 
   @Post('/tranfer/:email')
+  @ApiOperation({ summary: 'transfer money from your account to another user\'s account'})
   async transferMoney(
     @Param('email') recipientEmail: string,
     @Body() body: { amount: number },
@@ -34,6 +36,7 @@ export class AccountController {
   }
 
   @Post('/deposit-money/:amount')
+  @ApiOperation({ summary: 'fund your account'})
   async depositMoney(
     @Param('amount') amount: string,
     @GetUser('email') email: string
@@ -49,6 +52,7 @@ export class AccountController {
   }
 
   @Post('open')
+  @ApiOperation({ summary: 'open an account'})
   async openAccount(
     @Body() dto: OpenAccountDto,
     @GetUser('email') email: string
@@ -61,6 +65,7 @@ export class AccountController {
   }
 
   @Post('close')
+  @ApiOperation({ summary: 'close an account'})
   async closeAccount(@GetUser('email') email: string) {
     const account = await this.accountService.getUserAccount(email);
     await this.accountService.closeAccount(account.id);
@@ -71,6 +76,7 @@ export class AccountController {
   }
 
   @Post('withdraw-money/:amount')
+  @ApiOperation({ summary: 'withdrawal'})
   async withdrawMoney(
     @GetUser('email') email: string,
     @Param('amount') amount: Decimal
@@ -80,6 +86,7 @@ export class AccountController {
   }
 
   @Get('balance/:currency')
+  @ApiOperation({ summary: 'get the account balance in a specific currency'})
   async getBalance(
     @GetUser('email') email: string,
     @Param('currency') currency: Currency

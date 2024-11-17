@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, Query, UseGuards, UsePipes, ValidationPipe } from "@nestjs/common";
+import { ApiOperation } from "@nestjs/swagger";
 import { UserRole } from "@prisma/client";
 import { AdminService } from "src/application/admin/admin.service";
-import { CreateDepositOfferDto } from "src/application/deposit/dto/create-deposit-offer.dto";
 import { JwtAuthGuard } from "src/application/auth/guards/auth.guard";
 import { RolesGuard } from "src/application/auth/guards/role.guard";
 import { User } from "src/domain/models/user.model";
@@ -12,6 +12,7 @@ export class AdminController{
     constructor(private readonly adminService: AdminService){ }
 
     @Get('/:email')
+    @ApiOperation({ summary: 'get user information'})
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(UserRole.ADMIN)
     async getUserInformation(@Param('email') email: string) : Promise<User> {
@@ -20,6 +21,7 @@ export class AdminController{
     }
 
     @Post('/:email')
+    @ApiOperation({ summary: 'block the user'})
     async blockUser(@Param('email') email: string){
         await this.adminService.blockUser(email)
         return {
