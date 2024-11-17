@@ -20,6 +20,9 @@ It's a web-based banking application
 3. **Configure the environment: Create a .env file in the root directory with the following:**
    ```bash
    DATABASE_URL=postgresql://<user>:<password>@<host>:<port>/<database>
+   JWT_SECRET=<your_jwt_secret>
+   CURRENCY_API_KEY=<your_secret_key_from_api.currencyapi.com>
+   ```
 
 4. **Run Prisma migrations:**
    ```bash
