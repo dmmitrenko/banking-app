@@ -9,6 +9,7 @@ async function bootstrap() {
     .setTitle('banking app')
     .setDescription('terms of reference')
     .setVersion('1.0')
+    .addBearerAuth()
     .build()
 
   const documentFactory = () => SwaggerModule.createDocument(app, config)
