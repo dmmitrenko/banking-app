@@ -10,8 +10,8 @@ It's a web-based banking application
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/your-repository.git
-   cd your-repository
+   git clone https://github.com/dmmitrenko/banking-app.git
+   cd banking-app
    
 2. **Install dependencies:**
    ```bash
